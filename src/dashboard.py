@@ -9,6 +9,8 @@ from dash.dependencies import Input, Output, State
 import dash_core_components as dcc
 import dash_html_components as html
 
+from stock_data import get_stock_data
+
 app = dash.Dash()
 
 app.layout = html.Div([
@@ -38,19 +40,64 @@ app.layout = html.Div([
                             )
                 ]),
                 html.Hr(),
-
-                html.Div(id='output')
+                dcc.Graph(id='historical_values'),
+                html.Hr(),
+                dcc.Graph(id='earning_values')
             ])
 
 @app.callback(
-                Output('output', 'children'),
+                Output('earning_values', 'figure'),
+                [Input('submit-button', 'n_clicks')],
+                [State('ticker','value'),
+                 State('date_range', 'start_date'),
+                 State('date_range', 'end_date')
+                 ])
+def publish_earnings_chart(nclicks, ticker, start_date, end_date):
+    #return "{},{},{},{}".format(nclicks,ticker,start_date,end_date)
+    #_, df = get_stock_data('TCS.NS', '2019-04-01','2021-03-31')
+    _, df = get_stock_data(ticker, start_date, end_date)
+    traces = [
+                go.Bar(x = df.index, y = df['Earnings'], name = 'Earnings'),
+                go.Bar(x = df.index, y = df['Revenue'], name = 'Revenue')
+            ]
+
+    fig = {
+            'data': traces,
+            'layout': go.Layout(
+                xaxis={'title': 'Time'},
+                yaxis={'title': 'Price'},
+                hovermode='closest'
+            )
+        }
+
+    return fig
+
+
+
+@app.callback(
+                Output('historical_values', 'figure'),
                 [Input('submit-button', 'n_clicks')],
                 [State('ticker','value'),
                  State('date_range', 'start_date'),
                  State('date_range', 'end_date')
                  ])
 def publish_price_chart(nclicks, ticker, start_date, end_date):
-    return "{},{},{},{}".format(nclicks,ticker,start_date,end_date)
+    #return "{},{},{},{}".format(nclicks,ticker,start_date,end_date)
+    #df, _ = get_stock_data('TCS.NS', '2019-04-01','2021-03-31')
+    df, _ = get_stock_data(ticker, start_date, end_date)
+    traces = [go.Scatter(x = df.index, y = df['Close'], mode = 'lines')]
+
+    fig = {
+            'data': traces,
+            'layout': go.Layout(
+                xaxis={'title': 'Time'},
+                yaxis={'title': 'Price'},
+                hovermode='closest'
+            )
+        }
+
+    return fig
+
 
 if __name__ == "__main__":
     app.run_server()
