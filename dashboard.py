@@ -9,7 +9,7 @@ from dash.dependencies import Input, Output, State
 import dash_core_components as dcc
 import dash_html_components as html
 
-from stock_data import get_stock_data
+from utils.stock_data import get_stock_data
 
 app = dash.Dash()
 
