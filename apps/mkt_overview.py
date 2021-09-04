@@ -30,7 +30,6 @@ driver.get('https://www.tickertape.in/market-mood-index')
 html_src = html_parser.fromstring(driver.page_source)
 mmi_value = float(html_src.xpath('//*[@id="app-container"]/div/div[1]/div[1]/div/div[2]/span')[0].text)
 
-
 layout = html.Div([
                 html.Div([
                             daq.Gauge(
@@ -40,21 +39,27 @@ layout = html.Div([
                                 label='MMI',
                                 max=100,
                                 min=0,
-                            ),
-                            dcc.Graph(id = 'index_stats')              
+                            )              
                 ]),
                 html.Div([
-                            dcc.RadioItems(
-                                id = 'index',
-                                options=[
-                                    {'label': 'NIFTY', 'value': 'nifty'},
-                                    {'label': 'SENSEX', 'value': 'sensex'},
-                                ],
-                                value='nifty',
-                                labelStyle={'display': 'inline-block'}
-                            ),
-                            html.Hr(),
-                            dcc.Graph(id='index_performance') 
+                            dbc.FormGroup([
+                                            dbc.RadioItems(
+                                                options=[
+                                                    {'label': 'NIFTY', 'value': 'nifty'},
+                                                    {'label': 'SENSEX', 'value': 'sensex'},
+                                                ],
+                                                value='nifty',
+                                                id="index",
+                                                inline = True,
+                                                style = {"padding":"1rem 1rem 1rem 1rem"}
+                                            ),
+                                        ]),
+                            dbc.Row(
+                                    [
+                                        dbc.Col(html.Div(dcc.Graph(id='index_performance'))),
+                                        dbc.Col(html.Div(dcc.Graph(id = 'index_stats')), width=3),
+                                    ]
+                                )
                 ])
                 
             ])
