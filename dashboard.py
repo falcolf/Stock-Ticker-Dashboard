@@ -73,7 +73,6 @@ def publish_earnings_chart(nclicks, ticker, start_date, end_date):
     return fig
 
 
-
 @app.callback(
                 Output('historical_values', 'figure'),
                 [Input('submit-button', 'n_clicks')],
@@ -82,8 +81,7 @@ def publish_earnings_chart(nclicks, ticker, start_date, end_date):
                  State('date_range', 'end_date')
                  ])
 def publish_price_chart(nclicks, ticker, start_date, end_date):
-    #return "{},{},{},{}".format(nclicks,ticker,start_date,end_date)
-    #df, _ = get_stock_data('TCS.NS', '2019-04-01','2021-03-31')
+    
     df, _ = get_stock_data(ticker, start_date, end_date)
     #traces = [go.Candlestick(x = df.index, y = df['Close'], mode = 'lines')]
     traces = [  
