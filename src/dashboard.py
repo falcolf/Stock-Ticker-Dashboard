@@ -85,7 +85,16 @@ def publish_price_chart(nclicks, ticker, start_date, end_date):
     #return "{},{},{},{}".format(nclicks,ticker,start_date,end_date)
     #df, _ = get_stock_data('TCS.NS', '2019-04-01','2021-03-31')
     df, _ = get_stock_data(ticker, start_date, end_date)
-    traces = [go.Scatter(x = df.index, y = df['Close'], mode = 'lines')]
+    #traces = [go.Candlestick(x = df.index, y = df['Close'], mode = 'lines')]
+    traces = [  
+                go.Candlestick(
+                                x=df.index,
+                                open=df['Open'], 
+                                high=df['High'],
+                                low=df['Low'], 
+                                close=df['Close']
+                            )
+                ]
 
     fig = {
             'data': traces,

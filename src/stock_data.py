@@ -6,7 +6,7 @@ def get_stock_data(ticker, start, end):
     
     stock = yf.Ticker(ticker)
     
-    history = pd.DataFrame(stock.history(ticker, start=start, end=end)['Close'])
+    history = pd.DataFrame(stock.history(ticker, start=start, end=end))
     earnings = stock.earnings
 
     
