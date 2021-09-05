@@ -1,0 +1,18 @@
+.CalendarDay {
+  padding: 0;
+}
+
+.DateInput_input, .DateInput_input_1, .DateInput_input_1, .DateInput_input_focused, .DateInput_input_focused_2 {
+  font-size: inherit;
+}
+
+.DateInput, .DateInput_1 {
+  width: 30%;
+}
+
+
+
+.DateRangePickerInput_arrow_svg, .DateRangePickerInput_arrow_svg_1 {
+  Height: 10px !important;
+  Width: 10px !important;
+}

@@ -1,4 +1,4 @@
-from datetime import date
+import datetime
 import pandas as pd
 import numpy as np
 import plotly.offline as pyo
@@ -17,24 +17,32 @@ from utils.stock_data import get_stock_data
 layout = html.Div([
                 
                 html.Div([
-                    html.Div(dcc.Input(
-                                id = 'ticker', 
-                                type = 'text', 
-                                placeholder = 'Yahoo Finance Stock Ticker',
-                                style = {'width':'90%', 'height':'50px'}
-                            ), style = {'display':'inline-block', 'padding-right':'50px', 'width':'30%'}),
-                    dcc.DatePickerRange(
-                                id='date_range',
-                                initial_visible_month=date(2020, 4, 1),
-                                display_format='YYYY-MM-DD',
-                                style = {'display':'inline-block','width':'30%'}
-                            ),
-                    html.Button(
-                                id='submit-button',
-                                n_clicks=0,
-                                children='Submit',
-                                style={'fontSize':20}
-                            )
+                    dbc.Row([
+                                dbc.Col([
+                                        dbc.FormGroup([
+                                                        dbc.Label("Ticker"),
+                                                        dbc.Input(placeholder="TCS.NS", type="text", id = 'ticker', value = 'TCS.NS'),
+                                                        dbc.FormText("Enter Yahoo Finance Ticker"),
+                                                        ]
+                                                    )
+                                    ], width={"size": 3, "offset": 1}),
+                                dbc.Col([
+                                        dbc.Label("Select Date Range"),
+                                        dcc.DatePickerRange(
+                                            id='date_range',
+                                            initial_visible_month=datetime.date(2020, 4, 1),
+                                            display_format='YYYY-MM-DD'
+                                        )], width = 3),
+                                dbc.Col([
+                                        dbc.Button(
+                                                    id='submit-button',
+                                                    color = 'primary',
+                                                    className="mr-1",
+                                                    n_clicks=0,
+                                                    children='Get Quote',
+                                                    style={'fontSize':10}
+                                                )], width = 4)
+                                ], style = {"padding":"2rem 2rem 2rem 2rem"}),
                 ]),
                 html.Hr(),
                 dcc.Graph(id='historical_values'),
