@@ -31,7 +31,7 @@ layout = html.Div([
                 html.Div([
                             dcc.Interval(
                                     id='interval-component',
-                                    interval=1000 * 1 * 60 * 60 * 6, # in milliseconds --> 6 hours
+                                    interval=1000 * 1 * 60 * 60 * 3, # in milliseconds --> 3 hours
                                     n_intervals=0
                                 ),
                             dbc.Row([
@@ -40,20 +40,12 @@ layout = html.Div([
                                                 
                                 ], style = {"padding":"2rem 2rem 2rem 2rem"})              
                 ]),
-                html.Hr(),
                 html.Div([
-                            dbc.FormGroup([
-                                            dbc.RadioItems(
-                                                options=[
-                                                    {'label': 'NIFTY', 'value': 'nifty'},
-                                                    {'label': 'SENSEX', 'value': 'sensex'},
-                                                ],
-                                                value='nifty',
-                                                id="index",
-                                                inline = True,
-                                                style = {"padding":"1rem 0.5rem 0.5rem 0.5rem"}
-                                            ),
-                                        ]),
+                            dbc.Tabs([
+                                        dbc.Tab(label="NIFTY", tab_id="NIFTY"),
+                                        dbc.Tab(label="SENSEX", tab_id="SENSEX"),
+                                    ],id="index",active_tab="NIFTY"),
+                            
                             dbc.Row(
                                     [
                                         dbc.Col(html.Div(dcc.Graph(id='index_performance'))),
@@ -64,12 +56,11 @@ layout = html.Div([
                 
             ])
 
-@app.callback(
-                [
-                    Output('mmi_stats', 'children'),
-                    Output('world_indices','figure')],
-                [Input('interval-component', 'n_intervals')]
-            )
+
+
+@app.callback([ Output('mmi_stats', 'children'),
+                Output('world_indices','figure')],
+              [Input('interval-component', 'n_intervals')])
 def publish_top_stats(n):
 
     driver.get('https://www.tickertape.in/market-mood-index')
@@ -110,64 +101,67 @@ def publish_top_stats(n):
             }  
 
     return mmi_indicator, world_indices_fig
+    
 
-
-@app.callback(
-                Output('index_stats', 'figure'),
-                [Input('index', 'value')],
+@app.callback([ Output('index_performance', 'figure'),
+                Output('index_stats', 'figure')],
+              [Input('index', 'active_tab')],
             )
-def publish_stats(index):
+def publish_bottom_chart(index):
     
     index_ticker = {
                     'nifty':'^NSEI',
                     'sensex':'^BSESN'
                 }
-    ticker = index_ticker.get(index)
-    start, end, high, low = get_ticker_stats(ticker, period = '5d')
+    ticker = index_ticker.get(index.lower())
 
-    traces = [go.Indicator(
-                            mode = "number+delta",
-                            value = end,
-                            title = {"text": "{}<br><span style='font-size:0.8em;color:gray'>Current Value</span>".format(index)},
-                            delta = {'reference': start, 'relative': True},
-                            domain = {'x': [0.6, 1], 'y': [0, 1]})]
-    fig = {
-            'data': traces,
-            'layout': go.Layout(hovermode='closest')
-        }
-
-    return fig
-
-@app.callback(
-                Output('index_performance', 'figure'),
-                [Input('index', 'value')],
-            )
-def publish_price_chart(index):
-    
-    index_ticker = {
-                    'nifty':'^NSEI',
-                    'sensex':'^BSESN'
-                }
-    ticker = index_ticker.get(index)
     df, _ = get_stock_data(ticker, interval = '1wk')
-    
-    traces = [  
-                go.Candlestick(
-                                x=df.index,
-                                open=df['Open'], 
-                                high=df['High'],
-                                low=df['Low'], 
-                                close=df['Close']
-                            )
-                ]
-
-    fig = {
+    traces = [go.Candlestick(
+                    x=df.index,
+                    open=df['Open'], 
+                    high=df['High'],
+                    low=df['Low'], 
+                    close=df['Close'])]
+    price_fig = {
             'data': traces,
             'layout': go.Layout(
-                xaxis={'title': 'Time'},
-                yaxis={'title': 'Price'},
+                #xaxis={'title': 'Time'},
+                #yaxis={'title': 'Price'},
                 hovermode='closest'
             )
         }
 
-    return fig
+
+    def get_ticker_change_fig(ticker,period,row,col,mode = "delta"):
+        start, end, high, low = get_ticker_stats(ticker, period = period)
+        return go.Indicator(
+                        mode = "delta",
+                        value = end,
+                        title = {"text": "{}".format(period), 'font':{'size':10} },
+                        delta = {'reference': start, 'relative': True, 'font':{'size':20}},
+                        domain = {'row': row, 'column': col}
+                    )
+
+
+    _, end, _, _ = get_ticker_stats(ticker, period = '2d')
+    curr_val = go.Indicator(
+                mode = "number",
+                value = end,
+                title = {"text": "{}<br><span style='font-size:0.8em;color:gray'>CurrentValue</span>".format(index), 'font':{'size':15}},
+                number = {'font':{'size':20}},
+                domain = {'row': 0, 'column': 0})
+
+    index_stats = list()
+    index_stats.append(curr_val)
+    index_stats.append(get_ticker_change_fig(ticker = ticker, period = '2d', row = 1, col = 0))
+    index_stats.append(get_ticker_change_fig(ticker = ticker, period = '5d', row = 2, col = 0))
+    index_stats.append(get_ticker_change_fig(ticker = ticker, period = '1mo', row = 3, col = 0))
+    index_stats.append(get_ticker_change_fig(ticker = ticker, period = '1y', row = 4, col = 0))
+    index_stats.append(get_ticker_change_fig(ticker = ticker, period = '5y', row = 5, col = 0))
+
+    indices_fig = {
+            'data': index_stats,
+            'layout': go.Layout(hovermode='closest', grid = {'rows': 6, 'columns': 1, 'pattern': "independent"}, height=500)
+        }
+
+    return price_fig, indices_fig
