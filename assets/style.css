@@ -10,9 +10,22 @@
   width: 30%;
 }
 
-
-
 .DateRangePickerInput_arrow_svg, .DateRangePickerInput_arrow_svg_1 {
-  Height: 10px !important;
-  Width: 10px !important;
+  Height: 15px !important;
+  Width: 15px !important;
+}
+
+table {
+  border-collapse: collapse !important;
+}
+th:not(.CalendarDay), td:not(.CalendarDay) {
+  padding: 12px 15px !important;
+  text-align: left !important;
+  border-bottom: 1px solid #E1E1E1; 
+}
+th:first-child:not(.CalendarDay), td:first-child:not(.CalendarDay) {
+  padding-left: 0 !important; 
+}
+th:last-child:not(.CalendarDay), td:last-child:not(.CalendarDay) {
+  padding-right: 0 !important; 
 }
