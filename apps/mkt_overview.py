@@ -23,8 +23,8 @@ from lxml import html as html_parser
 
 chrome_options = Options()
 chrome_options.add_argument("--headless")
-#driver = webdriver.Chrome(ChromeDriverManager().install(), options=chrome_options)
-driver = webdriver.Chrome("./chromedriver_linux", options=chrome_options)
+driver = webdriver.Chrome(ChromeDriverManager().install(), options=chrome_options)
+#driver = webdriver.Chrome("./chromedriver_linux", options=chrome_options)
 options = webdriver.ChromeOptions()
 options.add_argument('headless')
 
